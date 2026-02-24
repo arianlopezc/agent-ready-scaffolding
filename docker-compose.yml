@@ -1,0 +1,29 @@
+# Docker Compose for local development
+# Run: docker-compose up -d
+# Stop: docker-compose down
+# Reset data: docker-compose down -v
+#
+# SECURITY NOTE: Default passwords are used for local development only.
+# NEVER use these credentials in production environments.
+# Change all passwords before deploying to any shared or production environment.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: task-manager-postgres
+    environment:
+      POSTGRES_DB: task-manager
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"  # Host:Container - uses 5433 to avoid conflicts with local PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

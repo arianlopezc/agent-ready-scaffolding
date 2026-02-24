@@ -1,0 +1,23 @@
+package com.example.taskmanager.sqldatastore.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+
+/**
+ * Database configuration for Spring Data JDBC.
+ *
+ * <p>DataSource is auto-configured by Spring Boot using properties from application.yml. HikariCP
+ * connection pool is automatically used when on the classpath.
+ *
+ * <p>Configuration can be customized via: - spring.datasource.* properties for connection settings
+ * - spring.datasource.hikari.* properties for pool tuning
+ *
+ * <p>Environment variables can override properties using Spring's relaxed binding: -
+ * SPRING_DATASOURCE_URL - SPRING_DATASOURCE_USERNAME - SPRING_DATASOURCE_PASSWORD
+ */
+@Configuration
+@EnableJdbcRepositories(basePackages = "com.example.taskmanager.sqldatastore.repository")
+public class DatabaseConfig {
+  // Spring Boot auto-configures DataSource from application.yml
+  // No manual bean definition needed
+}

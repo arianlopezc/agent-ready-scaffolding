@@ -1,0 +1,27 @@
+# Database Configuration for TaskManager
+# These defaults are for local development. Override in production via environment variables.
+# SECURITY: Always use SSL in production and set strong passwords.
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:task-manager}?sslmode=${DB_SSL_MODE:prefer}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+    # HikariCP Connection Pool Settings
+    hikari:
+      pool-name: ${DB_POOL_NAME:TaskManagerPool}
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
+      idle-timeout: ${DB_IDLE_TIMEOUT:300000}
+      max-lifetime: ${DB_MAX_LIFETIME:1200000}
+      leak-detection-threshold: ${DB_LEAK_DETECTION:0}
+
+  # Flyway Migration Settings
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+    validate-on-migrate: ${FLYWAY_VALIDATE:true}

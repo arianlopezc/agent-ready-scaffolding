@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(mvn *)",
+      "Bash(git *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
+      "Bash(cd *)",
+      "Bash(ls *)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(sudo *)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | sh)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $(git rev-parse --show-toplevel) && mvn spotless:apply -q 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

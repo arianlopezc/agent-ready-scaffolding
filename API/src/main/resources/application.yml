@@ -1,0 +1,122 @@
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: 1024
+
+spring:
+  application:
+    name: task-manager-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
+
+  # Database configuration
+  # Default ports use 5433 (PostgreSQL) or 3307 (MySQL) to avoid conflicts with local installations
+  # Use docker-compose up -d to start the database container
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:task-manager}?sslmode=${DB_SSL_MODE:prefer}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: TaskManagerPool
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:3}
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # Flyway migrations
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Resilience4j configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+# CORS configuration
+# SECURITY: Restrict allowed-origins to your actual domains in production
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:Content-Type,Authorization,X-Requested-With}
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:false}
+  max-age: ${CORS_MAX_AGE:3600}
+
+# Security headers configuration
+# SECURITY: These headers help protect against common web vulnerabilities
+security:
+  headers:
+    enabled: ${SECURITY_HEADERS_ENABLED:true}
+    content-security-policy: ${CSP:default-src 'self'}
+    x-frame-options: ${X_FRAME_OPTIONS:DENY}
+    x-content-type-options: ${X_CONTENT_TYPE_OPTIONS:nosniff}
+    x-xss-protection: ${X_XSS_PROTECTION:1; mode=block}
+    referrer-policy: ${REFERRER_POLICY:strict-origin-when-cross-origin}
+    permissions-policy: ${PERMISSIONS_POLICY:geolocation=(), microphone=(), camera=()}
+
+# Actuator endpoints
+# SECURITY: In production, consider restricting to health only or securing with authentication
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS:health,info,prometheus,metrics}
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:when_authorized}
+      show-components: ${MANAGEMENT_HEALTH_COMPONENTS:when_authorized}
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+      threshold: 100MB
+  info:
+    env:
+      enabled: false
+
+# OpenAPI/Swagger configuration
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+    path: /api-docs
+  swagger-ui:
+    enabled: ${SWAGGER_UI_ENABLED:true}
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+# Logging
+logging:
+  level:
+    com.example.taskmanager: ${LOG_LEVEL:DEBUG}
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    root: INFO

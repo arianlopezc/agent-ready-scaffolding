@@ -1,0 +1,33 @@
+package com.example.taskmanager.shared.config;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Resilience4j Circuit Breaker configuration.
+ *
+ * <p>Circuit breaker settings are configured via application.yml using Spring Boot's Resilience4j
+ * auto-configuration. This class provides convenient access to circuit breaker instances.
+ *
+ * <p>Configuration can be customized via: - resilience4j.circuitbreaker.* properties in
+ * application.yml - Environment variables (e.g., CB_FAILURE_RATE_THRESHOLD, CB_WAIT_DURATION_MS)
+ *
+ * <p>Usage: - Annotate methods with @CircuitBreaker(name = "default") for automatic protection - Or
+ * inject CircuitBreaker bean for programmatic use
+ */
+@Configuration
+public class CircuitBreakerConfiguration {
+
+  /**
+   * Default circuit breaker instance.
+   *
+   * <p>Configuration is loaded from application.yml resilience4j.circuitbreaker.instances.default
+   * Use @CircuitBreaker(name = "default") annotation on methods for declarative usage.
+   */
+  @Bean
+  public CircuitBreaker defaultCircuitBreaker(CircuitBreakerRegistry registry) {
+    return registry.circuitBreaker("default");
+  }
+}

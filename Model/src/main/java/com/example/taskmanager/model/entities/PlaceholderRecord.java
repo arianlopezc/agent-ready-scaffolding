@@ -1,0 +1,43 @@
+package com.example.taskmanager.model.entities;
+
+import jakarta.annotation.Nullable;
+import java.time.Instant;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+/**
+ * Placeholder record for DATABASE PERSISTENCE. This is a Java Record used by Spring Data JDBC
+ * repositories.
+ *
+ * <p>For business logic, use the Placeholder interface instead.
+ *
+ * <p>Replace this with your actual database record classes.
+ */
+@Table("placeholders")
+public record PlaceholderRecord(
+    @Id @Nullable Long id,
+    String name,
+    @Nullable String description,
+    @Nullable Instant createdAt,
+    @Nullable Instant updatedAt) {
+
+  /** Constructor for creating new records (without id). */
+  public PlaceholderRecord(String name, @Nullable String description, Instant createdAt) {
+    this(null, name, description, createdAt, createdAt);
+  }
+
+  /** Create a copy with an assigned ID (for after database insert). */
+  public PlaceholderRecord withId(Long newId) {
+    return new PlaceholderRecord(newId, name, description, createdAt, updatedAt);
+  }
+
+  /** Create a copy with updated timestamp. */
+  public PlaceholderRecord withUpdatedAt(Instant updated) {
+    return new PlaceholderRecord(id, name, description, createdAt, updated);
+  }
+
+  /** Create a copy with new name and description. */
+  public PlaceholderRecord withNameAndDescription(String newName, @Nullable String newDescription) {
+    return new PlaceholderRecord(id, newName, newDescription, createdAt, Instant.now());
+  }
+}

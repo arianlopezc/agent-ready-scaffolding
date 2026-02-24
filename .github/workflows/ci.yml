@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: task-manager
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Compile
+        run: mvn clean compile -B -q
+
+      - name: Check formatting
+        run: mvn spotless:check -B
+
+      - name: Enforce version rules
+        run: mvn enforcer:enforce -B
+
+      - name: Run tests
+        run: mvn test -B
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5433
+          DB_NAME: task-manager
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
